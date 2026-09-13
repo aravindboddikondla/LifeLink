@@ -2020,7 +2020,6 @@ async function acceptAlert() {
     });
 
     toast('✅ Alert accepted! Navigate to victim.', 's');
-    dismissMedicAlert(alertId);
 
     setTimeout(() => { show('map-screen'); initMap(currentAlertForModal.lat, currentAlertForModal.lng); }, 800);
   } catch (error) {
@@ -2179,11 +2178,13 @@ function updateMapAlertsList() {
   const el = document.getElementById('map-alerts-list');
   if (!el || !trackedAlert) return;
   
-  // Transform the bottom of the map screen into a live feed
+  // Transform the bottom of the map screen into a live feed with Google Maps link
   let html = `
     <div style="background:rgba(230,46,46,.05); border:1px solid rgba(230,46,46,.2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
       <div style="color:var(--r); font-weight:800; font-size:.75rem; margin-bottom:.5rem;">🔴 LIVE SITUATION UPDATE</div>
-      <div style="font-size:.85rem; line-height:1.4;">${trackedAlert.description || 'Waiting for updates from victim...'}</div>
+      <div style="font-size:.85rem; line-height:1.4; margin-bottom:1rem;">${trackedAlert.description || 'Waiting for updates from victim...'}</div>
+      
+      <a href="https://www.google.com/maps?q=${trackedAlert.lat},${trackedAlert.lng}" target="_blank" style="display:block; text-align:center; text-decoration:none; background:var(--b); color:#fff; padding:.7rem; border-radius:8px; font-weight:700; font-size:.85rem;">📍 Open in Google Maps</a>
     </div>`;
     
   if (trackedAlert.photo) {
