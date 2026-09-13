@@ -837,7 +837,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);}
         </div>
       </div>
       <div id="parentAlertsLog" style="max-height:100px;overflow-y:auto;margin-top:.3rem;"></div>
-      <button class="send-parent-btn" style="color:var(--g); border-color:var(--g); background:rgba(0,217,126,.1);" onclick="cancelParentAlert()">✅ Send 'I am Safe' (Cancel Alert)</button>
+      <button id="parentSafeBtn" class="send-parent-btn hidden" style="color:var(--g); border-color:var(--g); background:rgba(0,217,126,.1);" onclick="cancelParentAlert()">✅ Send 'I am Safe' (Cancel Alert)</button>
     </div>
 
   </div><!-- end scroll-body -->
@@ -1671,6 +1671,7 @@ async function actuallyFireSOS() {
     document.getElementById('vu-status-pill').className = 'status-pill sp-alert';
     document.getElementById('vu-status-txt').textContent = 'SOS Active · Help is coming';
     document.getElementById('activeCard').classList.remove('hidden');
+    document.getElementById('parentSafeBtn').classList.remove('hidden');
     document.getElementById('photo-box').classList.add('hidden');
 
     elapsedSecs = 0;
@@ -1838,6 +1839,7 @@ function resetVictimUI() {
   document.getElementById('vu-status-pill').className = 'status-pill sp-safe';
   document.getElementById('vu-status-txt').textContent = 'Safe · No Active Alert';
   document.getElementById('activeCard').classList.add('hidden');
+  document.getElementById('parentSafeBtn').classList.add('hidden');
   document.getElementById('photo-box').classList.remove('hidden');
   document.getElementById('respWrap').innerHTML = '';
   document.getElementById('ac-notified').textContent = '0';
