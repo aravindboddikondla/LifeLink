@@ -1880,7 +1880,6 @@ function toggleOnline() {
       .where('status', '==', 'active')
       .onSnapshot((snapshot) => {
         
-        // --- NEW: Trigger a notification if an alert is updated ---
         snapshot.docChanges().forEach((change) => {
           if (change.type === "modified") {
             const docData = change.doc.data();
@@ -1888,8 +1887,20 @@ function toggleOnline() {
               toast(`💬 Update from ${docData.victimName}: ${docData.description}`, 'i');
             }
           }
+          
+          // --- NEW: Detect when the victim resolves the alert ---
+          if (change.type === "removed") {
+            const docData = change.doc.data();
+            toast(`✅ Emergency for ${docData.victimName} was resolved by the victim.`, 's');
+            
+            // If the medic is actively tracking this person, clear their screen
+            if (currentAlertId === docData.id) {
+              currentAlertId = null;
+              goHome(); // Send the medic back to the home dashboard
+            }
+          }
+          // ------------------------------------------------------
         });
-        // ----------------------------------------------------------
 
         liveCloudAlerts = [];
         snapshot.forEach((doc) => liveCloudAlerts.push(doc.data()));
@@ -1898,7 +1909,6 @@ function toggleOnline() {
         checkForNewAlertsBanner();
       });
   } else {
-    // Stop listening to save data
     if (cloudAlertsUnsubscribe) {
       cloudAlertsUnsubscribe();
       cloudAlertsUnsubscribe = null;
