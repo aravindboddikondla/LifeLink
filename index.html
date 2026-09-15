@@ -1205,26 +1205,22 @@ function initDeviceListener() {
 }
 
 function startIoTPolling() {
-  clearInterval(iotPollInterval);
-  if (!IOT_ENDPOINT || !currentUser) return;
-  if (!currentUser.deviceKey) {
-    currentUser.deviceKey = generateDeviceKey();
-    const users = LS.users();
-    const idx = users.findIndex(u => u.id === currentUser.id);
-    if (idx > -1) { users[idx] = currentUser; LS.setUsers(users); }
-    LS.setMe(currentUser);
-  }
-  const { id, deviceKey } = currentUser;
-  iotPollInterval = setInterval(async () => {
-    try {
-      const res = await fetch(`${IOT_ENDPOINT}/status?device=${id}&key=${deviceKey}`);
-      const data = await res.json();
-      if (data && data.triggered) {
-        fireIoTSOS('Hardware device');
-        fetch(`${IOT_ENDPOINT}/ack?device=${id}&key=${deviceKey}`, { method: 'POST' }).catch(() => {});
-      }
-    } catch (e) { /* relay unreachable — ignore silently, try again next tick */ }
-  }, 5000);
+  if (!currentUser) return;
+  const deviceId = "aravind_board_01"; // Must match the ESP32 code
+
+  // Listen directly to the 'hardware_triggers' collection in Firebase
+  db.collection('hardware_triggers').doc(deviceId).onSnapshot((doc) => {
+    if (doc.exists && doc.data().triggered === true) {
+      
+      // 1. Fire the SOS in the web app
+      fireIoTSOS('LifeLink Hardware');
+      
+      // 2. Reset the trigger in Firebase back to false so it doesn't loop forever
+      db.collection('hardware_triggers').doc(deviceId).update({
+        triggered: false
+      }).catch(()=>{});
+    }
+  });
 }
 
 function checkDeviceTriggerFromURL() {
