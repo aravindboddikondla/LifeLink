@@ -1879,6 +1879,18 @@ function toggleOnline() {
     cloudAlertsUnsubscribe = db.collection('alerts')
       .where('status', '==', 'active')
       .onSnapshot((snapshot) => {
+        
+        // --- NEW: Trigger a notification if an alert is updated ---
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "modified") {
+            const docData = change.doc.data();
+            if (docData.description) {
+              toast(`💬 Update from ${docData.victimName}: ${docData.description}`, 'i');
+            }
+          }
+        });
+        // ----------------------------------------------------------
+
         liveCloudAlerts = [];
         snapshot.forEach((doc) => liveCloudAlerts.push(doc.data()));
         
@@ -2384,8 +2396,8 @@ function cancelParentAlert() {
   logParentAlert('✅ Sent safe status to parent');
   toast('✅ Safe status sent to parent!', 's');
 
-  // Notice: The cancelSOS() command has been removed from here.
-  // The emergency will remain ACTIVE on the Volunteer maps!
+  // End the SOS for the whole system and reset the UI
+  resolveAlert();
 }
 
 // ═══════════════════════════════════════════════════════════
